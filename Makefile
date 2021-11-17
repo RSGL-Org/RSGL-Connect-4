@@ -1,7 +1,7 @@
 SOURCE = source/main.cpp
-LIBS = source/bin/libRSGL.so
+LIBS = source/bin/libRSGL.so -pthread
 GXX = g++
 OUTPUT = Connect4
 
 all:
-	$(GXX) $(LIBS) $(SOURCE) -o $(OUTPUT)
+	$(GXX) $(SOURCE) $(LIBS) -o $(OUTPUT)
