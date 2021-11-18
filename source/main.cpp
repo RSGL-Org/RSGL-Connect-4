@@ -59,9 +59,13 @@ void checkGravityAndWins(){
                 points=0;
                 for (int i=0; i < 4; i++){
                     int value;
-                    if ((c+(7*i)+areas.at(a)) < circles.size()){ 
-                        value= cirColors.at(c+7*i+areas.at(a)).r + cirColors.at(c+7*i+areas.at(a)).g;
-                        if (color=="red" && value== 255 || color=="yellow" && value == 506) points++;
+                    if ((c +7*(i+areas.at(a))) < circles.size()){ 
+                        value= cirColors.at((c +7*(i+areas.at(a)))).r + cirColors.at((c +7*(i+areas.at(a)))).g;
+                        if (i==0) value=cirColors.at(c).r+cirColors.at(c).g;
+                        if (color=="red" && value == 255 || color=="yellow" && value == 506){
+                             std::cout << ((c +7*(i+areas.at(a)))) << std::endl;
+                             points++;
+                        }
                     }
                 }
             }
