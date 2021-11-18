@@ -52,22 +52,22 @@ void checkGravityAndWins(){
             cirColors.at(c) = {255,255,255};
         }
         std::vector<int> areas = {-1,1,0,-7}; int points=0;
-
-        for (int j=0; j < 4; j++){
-            points=0;
-            for (int i=0; i < 4; i++){
-                if (7*i+c+areas[j] < circles.size() && cirColors.at((7*i)+c+areas.at(j)).r+cirColors.at((7*i)+c+areas.at(j)).g == 255) points++;  
-            } if (points == 4){winner = "Red"; won=true; break;}
+        
+        for (std::string color="red"; !won; color = "yellow"){
+            int points=0;
+            for (int a=0; a < areas.size(); a++){
+                points=0;
+                for (int i=0; i < 4; i++){
+                    int value;
+                    if ((c+(7*i)+areas.at(a)) < circles.size()){ 
+                        value= cirColors.at(c+7*i+areas.at(a)).r + cirColors.at(c+7*i+areas.at(a)).g;
+                        if (color=="red" && value== 255 || color=="yellow" && value == 506) points++;
+                    }
+                }
+            }
+            if (points==4){ winner=color; won=true;}
+            else if (color == "yellow") break;
         }
-
-
-        /*
-        for (int j=0; j < 4; j++){
-            points=0;
-            for (int i=c; i+areas[j] < circles.size(); i += 7]){
-                if (cirColors.at(i+areas[j]).r+cirColors.at(i+areas[j]).g == 506) points++;   
-            } if (points == 3){winner = "Yellow"; won=true; break;}
-        }*/
     }
 }
 
