@@ -1,3 +1,6 @@
+#ifdef __3DS__
+    #include "include/3ds.hpp"
+#endif
 #ifdef wii
     #include "include/wii.hpp"
 #endif
