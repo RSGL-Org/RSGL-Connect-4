@@ -27,8 +27,9 @@ void checkEvents(){
             if (!won){
                 for (int c=0; c < circles.size(); c++){
                     if (pressed==c && cirColors.at(c).r+cirColors.at(c).g+cirColors.at(c).b == 255*3){
-                        if (!player){ cirColors.at(c) = {255,0,0}; player=1; break;}  
-                        else{ cirColors.at(c) = {255,251,0}; player=0; break;}
+                        if (!player){ cirColors.at(c) = {255,0,0}; player=1;}  
+                        else{ cirColors.at(c) = {255,251,0}; player=0; }
+                        break;
                     }
                 }
             } 
