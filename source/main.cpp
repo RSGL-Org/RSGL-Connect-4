@@ -5,6 +5,7 @@
 #define LENGTH 500
 #define rows 6
 #define collums 7
+#define maxPoints 4
 
 bool running = true;
 std::vector<RSGL::circle> circles = {};
@@ -51,11 +52,11 @@ void checkGravityAndWins(){
                 points=0;
                 if (cirColors.at(c).r+cirColors.at(c).g == col.at(color)){
                     points++;
-                    for (int i=1; i < 4; i++){
-                        int value= c +(collums*(i))+(areas.at(a))*i;
-                        if (value < circles.size() && cirColors.at(value).r + cirColors.at(value).g == col.at(color)){
-                        } else break;
-                    } if (points == 4){ winner=color; won=true; break;}
+                    for (int i=1; i < maxPoints; i++){
+                        int value= c +(collums*i)+(areas.at(a)*i);
+                        if (value < circles.size() && cirColors.at(value).r + cirColors.at(value).g == col.at(color)) points++;
+                        else break;
+                    } if (points == maxPoints){ winner=color; won=true; break;}
                 }
             }
         }
