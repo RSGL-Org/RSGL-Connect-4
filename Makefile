@@ -1,5 +1,5 @@
 SOURCE = source/main.cpp
-LIBS = source/bin/libRSGL.so -pthread
+LIBS = source/bin/libRSGL.so source/bin/libpthread-2.33.so
 GXX = g++
 OUTPUT = Connect4
 
