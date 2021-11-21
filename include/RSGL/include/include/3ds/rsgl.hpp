@@ -30,13 +30,6 @@ namespace RSGL{
     struct color { int r, g, b; };
     struct point { int x, y;};
 
-    const int KeyPressed=2;
-    const int KeyReleased=3;
-    const int MouseButtonPressed=4;
-    const int MouseButtonReleased=5;
-    const int MousePosChanged=6;
-    const int quit = 33;
-    const int dnd = 34;
     u32 background_color;
     bool romfs = false;
     C3D_RenderTarget* topScreen = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
@@ -62,20 +55,14 @@ namespace RSGL{
         int h;
         RSGL::color clr;
 
-        window(C3D_RenderTarget* screen, const char* name, int x1, int y1, int w1, int h1, RSGL::color clr) {
+        window(C3D_RenderTarget* screen, const char* name, RSGL::rect r, RSGL::color c) {
             gfxInitDefault();
             cfguInit();
             C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
         	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	        C2D_Prepare();
-            RSGL::background_color = C2D_Color32(clr.r, clr.g, clr.b, 0xFF);
-            RSGL::screen = screen;
+            RSGL::background_color = C2D_Color32(c.r, c.g, c.b, 0xFF); window::clr = c; RSGL::screen = screen;  window::name = name; window::x = r.x; window::y = r.y; window::w = r.width; window::h = r.length;
         };
-        void clear() {
-            C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-            C2D_TargetClear(RSGL::screen, RSGL::background_color);
-            C2D_SceneBegin(RSGL::screen);
-        }
         void close() {
 			C3D_Fini();
  			gfxExit();
@@ -83,23 +70,23 @@ namespace RSGL{
     		if (romfs) romfsExit();
         }
         void checkEvents();
-        void renderFrame() {
-            if (RSGL::topScreen == RSGL::screen && ((window::w < 399) && (window::h < 239))) {
-            // X resolution
-            RSGL::drawRect({window::x,window::y,240, (200-(window::w/2))}, {0,0,0});
-	        RSGL::drawRect({window::x+(window::w+(200-(window::w/2))),0,300,(200-(window::w/2))}, {0,0,0});
-            // Y resolution
-	        RSGL::drawRect({window::x,window::y,(120-(window::h/2))*2, 400}, {0,0,0});
-        }
+        void clear() {
+            /*if (RSGL::topScreen == RSGL::screen && ((window::w < 399) && (window::h < 239))) {
+                // X resolution
+                RSGL::drawRect({window::x,window::y,240, (200-(window::w/2))}, {0,0,0});
+	            RSGL::drawRect({window::x+(window::w+(200-(window::w/2))),0,300,(200-(window::w/2))}, {0,0,0});
+                // Y resolution
+	            RSGL::drawRect({window::x,window::y,(120-(window::h/2))*2, 400}, {0,0,0});
+            }
 
-        if (RSGL::bottomScreen == RSGL::screen && ((window::w < 319) && (window::h < 239))) {
-            // X resolution
-            RSGL::drawRect({window::x,window::y,240, (160-(window::w/2))}, {0,0,0});
-	        RSGL::drawRect({window::x+(window::w+(160-(window::w/2))),0,240,(160-(window::w/2))}, {0,0,0});
-            // Y resolution
-            RSGL::drawRect({window::x,window::y+window::h,(120-(window::h/2))*2, 400}, {0,0,0});
-        }
-        C3D_FrameEnd(0);
+            if (RSGL::bottomScreen == RSGL::screen && ((window::w <= 319) && (window::h <= 239))) {
+                // X resolution
+                RSGL::drawRect({window::x,window::y,240, (160-(window::w/2))}, {255,0,0});
+	            RSGL::drawRect({window::x+(window::w+(160-(window::w/2))),0,240,(160-(window::w/2))}, {255,0,0});
+                // Y resolution
+                RSGL::drawRect({window::x,window::y+window::h,(120-(window::h/2))*2, 400}, {0,255,0});
+            }*/
+            C3D_FrameEnd(0);
         }
     };
 
@@ -113,6 +100,9 @@ namespace RSGL{
         window::touch_y = touch.py;
         window::cpad_x = cpad.dx;
         window::cpad_y = cpad.dy;
+        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+        C2D_TargetClear(RSGL::screen, RSGL::background_color);
+        C2D_SceneBegin(RSGL::screen);
     }
 
     bool isPressed(u32 key) { return hidKeysHeld() & key; }
@@ -127,25 +117,6 @@ namespace RSGL{
   
   		return (sqrt( ( (c.x-testX) * (c.x-testX) ) + ( (c.y-testY) *(c.y-testY) ) )  <= c.radius);
     }
-
-    /*void window::renderFrame() {
-        if (RSGL::topScreen == RSGL::screen && ((window::w < 399) && (window::h < 239))) {
-            // X resolution
-            RSGL::drawRect({window::x,window::y,240, (200-(window::w/2))}, {0,0,0});
-	        RSGL::drawRect({window::x+(window::w+(200-(window::w/2))),0,300,(200-(window::w/2))}, {0,0,0});
-            // Y resolution
-	        RSGL::drawRect({window::x,window::y,(120-(window::h/2))*2, 400}, {0,0,0});
-        }
-
-        if (RSGL::bottomScreen == RSGL::screen && ((window::w < 319) && (window::h < 239))) {
-            // X resolution
-            RSGL::drawRect({window::x,window::y,240, (160-(window::w/2))}, {0,0,0});
-	        RSGL::drawRect({window::x+(window::w+(160-(window::w/2))),0,240,(160-(window::w/2))}, {0,0,0});
-            // Y resolution
-            RSGL::drawRect({window::x,window::y+window::h,(120-(window::h/2))*2, 400}, {0,0,0});
-        }
-        C3D_FrameEnd(0);
-    }*/
 
     int drawTriangle(triangle t, color c, bool solid=true) {
         u32 colour = C2D_Color32(c.r, c.g, c.b, 0xFF);

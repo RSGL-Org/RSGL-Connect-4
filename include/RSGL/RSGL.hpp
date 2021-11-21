@@ -1,7 +1,10 @@
 #ifdef __3DS__
     #include "include/3ds.hpp"
 #endif
-#ifdef wii
+#ifdef Switch
+    #include "include/switch.hpp"
+#endif
+#ifdef Wii
     #include "include/wii.hpp"
 #endif
 #ifdef WIN32

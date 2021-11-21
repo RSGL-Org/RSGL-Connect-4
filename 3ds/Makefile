@@ -31,7 +31,11 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-TARGET		:=	$(notdir $(CURDIR))
+APP_TITLE        := RSGL Connect 4
+APP_DESCRIPTION  := A 3DS port of RSGL Connect 4
+APP_AUTHOR       := Riley, port by EimaMei
+#---------------------------------------------------------------------------------
+TARGET		:=  Connect4
 BUILD		:=	build
 DATA		:=	data
 INCLUDES	:=	include
@@ -40,10 +44,6 @@ SOURCES		:=	..\3ds
 #ROMFS		:=	romfs
 #GRAPHICS	:=	gfx
 #GFXBUILD	:=	$(ROMFS)/gfx
-
-APP_TITLE        := RSGL Connect 4
-APP_DESCRIPTION  := A 3DS port of RSGL Connect 4
-APP_AUTHOR       := Riley, port by EimaMei
 
 #---------------------------------------------------------------------------------
 # options for code generation
