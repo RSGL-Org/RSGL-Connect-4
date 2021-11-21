@@ -7,7 +7,9 @@
 #define collums 7
 #define maxPoints 4
 
-bool running = true, won = false;
+#include "../include/theory.hpp"
+
+bool running = true, ai = false, won = false;
 std::vector<RSGL::circle> circles = {};
 std::vector<RSGL::color> cirColors = {};
 int player = 0, pressed=-1;
@@ -23,8 +25,9 @@ void checkEvents(){
         case RSGL::MouseButtonReleased: if (!won){
             for (int c=0; c < circles.size(); c++){
                 if (pressed==c && cirColors.at(c).r+cirColors.at(c).g+cirColors.at(c).b == 255*3){
-                    if (!player){ cirColors.at(c) = {255,0,0}; player=1;}  
-                    else{ cirColors.at(c) = {255,251,0}; player=0; } break;
+                    if (!player){ cirColors.at(c) = {255,0,0}; player=1; if(ai) player=3;}  
+                    else if (player == 1){ cirColors.at(c) = {255,251,0}; player=0; }
+                    if (player==3){cirColors.at(aiChoice(cirColors)) = {255,251,0}; player=0;} break;
                 }
             }
         } default: break; 
@@ -57,7 +60,8 @@ void checkGravityAndWins(){
     }
 }
 
-int main(){
+int main(int argc, char** argv){
+    if (argc > 1 && (std::string)argv[1] == "-AI") ai=true;
     for (int y=0; y < rows; y++){ for (int x=0; x < collums; x++){ circles.insert(circles.end(),{((WIDTH+LENGTH)/15)*x+(WIDTH+LENGTH)/18,((WIDTH+LENGTH)/15)*y+(WIDTH+LENGTH)/18,(WIDTH+LENGTH)/25}); cirColors.insert(cirColors.end(),{255,255,255});}}
     
     while (running){
