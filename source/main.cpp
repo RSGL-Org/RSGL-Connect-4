@@ -7,13 +7,10 @@
 #define collums 7
 #define maxPoints 4
 
-bool running = true;
+bool running = true, won = false;
 std::vector<RSGL::circle> circles = {};
 std::vector<RSGL::color> cirColors = {};
-int player = 0; int pressed=-1;
-bool won = false;
-std::string winner;
-std::string mode;
+int player = 0, pressed=-1;
 
 RSGL::window win("Connect 4",{500,500,WIDTH,LENGTH},{0,0,215});
 
@@ -22,18 +19,15 @@ void checkEvents(){
     if (win.isPressed(esc)) running = false;
     switch(win.event.type){
         case RSGL::quit: running = false; break;
-        case RSGL::MouseButtonPressed:
-                for (int c=0; c < circles.size(); c++) if (RSGL::CircleCollidePoint(circles.at(c),{win.event.x,win.event.y})){  pressed=c; break;} break;
-        case RSGL::MouseButtonReleased:
-            if (!won){
-                for (int c=0; c < circles.size(); c++){
-                    if (pressed==c && cirColors.at(c).r+cirColors.at(c).g+cirColors.at(c).b == 255*3){
-                        if (!player){ cirColors.at(c) = {255,0,0}; player=1;}  
-                        else{ cirColors.at(c) = {255,251,0}; player=0; }
-                        break;
-                    }
+        case RSGL::MouseButtonPressed:  for (int c=0; c < circles.size(); c++) if (RSGL::CircleCollidePoint(circles.at(c),{win.event.x,win.event.y})){  pressed=c; break;} break;
+        case RSGL::MouseButtonReleased: if (!won){
+            for (int c=0; c < circles.size(); c++){
+                if (pressed==c && cirColors.at(c).r+cirColors.at(c).g+cirColors.at(c).b == 255*3){
+                    if (!player){ cirColors.at(c) = {255,0,0}; player=1;}  
+                    else{ cirColors.at(c) = {255,251,0}; player=0; } break;
                 }
-            } 
+            }
+        } default: break; 
      }
 }
 
@@ -56,7 +50,7 @@ void checkGravityAndWins(){
                         int value= c +(collums*i)+(areas.at(a)*i);
                         if (value < circles.size() && cirColors.at(value).r + cirColors.at(value).g == col.at(color)) points++;
                         else break;
-                    } if (points == maxPoints){ winner=color; won=true; break;}
+                    } if (points == maxPoints){ won=true; break;}
                 }
             }
         }

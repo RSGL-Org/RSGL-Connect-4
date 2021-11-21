@@ -5,3 +5,4 @@ OUTPUT = Connect4
 
 all:
 	$(GXX) $(SOURCE) $(LIBS) -o $(OUTPUT)
+	
