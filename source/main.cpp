@@ -40,8 +40,7 @@ void checkEvents(){
 void checkGravityAndWins(){
     for (int c=0; c < circles.size(); c++){        
         if (cirColors.at(c).r+cirColors.at(c).b+cirColors.at(c).g != 255*3 && c+collums < circles.size() && cirColors.at(c+collums).r+cirColors.at(c+collums).b+cirColors.at(c+collums).g == 255*3){
-            cirColors.at(c+collums) = cirColors.at(c);
-            cirColors.at(c) = {255,255,255};
+            cirColors.at(c+collums) = cirColors.at(c); cirColors.at(c) = {255,255,255};
         }
         std::vector<int> areas = {-1,1,0,(-collums)+1}; int points=0;
         std::map<std::string,int> col = {{"red",255},{"yellow",506}}; int ind=0;
@@ -53,12 +52,9 @@ void checkGravityAndWins(){
                 if (cirColors.at(c).r+cirColors.at(c).g == col.at(color)){
                     points++;
                     for (int i=1; i < 4; i++){
-                        int value= c +(collums*i)+areas.at(a);
-                        //
+                        int value= c +(collums*(i))+(areas.at(a))*i;
                         if (value < circles.size() && cirColors.at(value).r + cirColors.at(value).g == col.at(color)){
-                            if (color == "red") std::cout << a << std::endl; points++;
-                        }
-                        else break;
+                        } else break;
                     } if (points == 4){ winner=color; won=true; break;}
                 }
             }
