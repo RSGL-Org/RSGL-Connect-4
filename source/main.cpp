@@ -62,7 +62,7 @@ void checkGravityAndWins(){
                     points++;
                     for (int i=1; i < 5; i++){
                         int value= c +(7*i)+areas.at(a);
-                        if (i == 4){ winner=color; won=true; break;}
+                        //if (i == 4){ winner=color; won=true; break;}
                         if (value < circles.size() && cirColors.at(value).r + cirColors.at(value).g == col.at(color)) points++;
                         else break;
                     }
