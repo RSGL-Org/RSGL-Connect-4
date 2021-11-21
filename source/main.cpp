@@ -1,8 +1,8 @@
 #include "../include/rsgl/RSGL.hpp"
 
 #define esc 0xff1b
-#define WIDTH 200
-#define LENGTH 200
+#define WIDTH 1000
+#define LENGTH 1000
 #define rows 6
 #define collums 7
 
