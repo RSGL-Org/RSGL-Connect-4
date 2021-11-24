@@ -10,7 +10,7 @@
                 "${file}",
                 "${fileDirname}/bin/libRSGL.so",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/../${fileBasenameNoExtension}"
             ],
             "options": {
                 "cwd": "${fileDirname}"

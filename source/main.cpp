@@ -20,7 +20,7 @@
 #define maxPoints 4
 
 #include "../include/theory.hpp"
-bool running = true, ai = false, won = false, home=true;
+bool running = true, ai = false, won = false, home=true, nh=false;
 std::vector<RSGL::circle> circles = {};
 std::vector<RSGL::color> cirColors = {};
 int player = 0, pressed=-1; std::string winner;
@@ -29,7 +29,7 @@ RSGL::window win(name,{500,500,WIDTH,LENGTH},{0,0,215});
 
 void checkEvents(){
     win.checkEvents();
-    if (win.isPressed(esc)) running = false;
+    if (win.isPressed(esc)){win.clear(); home=true; nh=true;}
     switch(win.event.type){
         case RSGL::quit: running = false; break;
         case RSGL::MouseButtonPressed:  for (int c=0; c < circles.size(); c++) if (RSGL::CircleCollidePoint(circles.at(c),{win.event.x,win.event.y})){  pressed=c; break;} break;
@@ -109,7 +109,7 @@ void Home(){
         {"Online",{300,(int)(LENGTH/1.3),(int)(LENGTH/11),(int)(WIDTH/3)},{255,255,255},{0,0,0},25}};
     RSGL::drawText("Connect 4",{WIDTH/4,LENGTH/2+LENGTH/8,25,25},"res/fonts/SansPosterBold.ttf",{255,255,255});
     for (int i=0; i < buttons.size(); i++){
-        if (win.event.type == 12) buttons.at(i).draw();
+        if (win.event.type == 12 || nh) buttons.at(i).draw();
         buttons.at(i).buttonLoop();
         if (buttons.at(i).isClicked()) click=i+1;
     } switch(click){
@@ -117,7 +117,7 @@ void Home(){
          case 2: ai=false; home=false; break;
          case 3: ai=false; home=false; break;
          default: break;
-    }  
+    } nh=false;  
     if (win.event.type == RSGL::quit || win.isPressed(esc)) running=false;
-    RSGL::drawCircle({WIDTH/4,LENGTH/8,(WIDTH+LENGTH)/4},{255,251,0});
+    RSGL::drawCircle({WIDTH/4,LENGTH/8,(WIDTH+LENGTH)/4},{255,251,0}); 
 }
