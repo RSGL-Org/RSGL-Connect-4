@@ -23,7 +23,7 @@
 bool running = true, ai = false, won = false, home=true;
 std::vector<RSGL::circle> circles = {};
 std::vector<RSGL::color> cirColors = {};
-int player = 0, pressed=-1;
+int player = 0, pressed=-1; std::string winner;
 
 RSGL::window win(name,{500,500,WIDTH,LENGTH},{0,0,215});
 
@@ -64,7 +64,7 @@ void checkGravityAndWins(){
                         int value= c +(collums*i)+(areas.at(a)*i);
                         if (value < circles.size() && cirColors.at(value).r + cirColors.at(value).g == col.at(color)) points++;
                         else break;
-                    } if (points == maxPoints){ won=true; break;}
+                    } if (points == maxPoints){ won=true; winner=color; break;}
                 }
             }
         }
@@ -83,6 +83,7 @@ int main(int argc, char** argv){
             for (int i=0; i < circles.size(); i++) RSGL::drawCircle(circles.at(i),cirColors.at(i));
             checkEvents(); win.clear();
             if (!won) checkGravityAndWins();
+            else RSGL::drawText(winner + " won", {50,LENGTH-50,25,25},"res/fonts/SansPosterBold.ttf",{255,255,255});
         } else Home();
     } win.close();
 }
