@@ -57,18 +57,6 @@ namespace RSGL{
       bool loaded = false;
     };
 
-    struct text{
-      RSGL::rect r; 
-      XImage* image;
-      Pixmap pixmap;
-      GC gc;
-      RSGL::rect srcr = r; 
-      RSGL::color c;
-      RSGL::color sc;
-      std::string text;
-      std::string stext;
-      bool loaded = false;
-    };
 
     struct drawable{
       private:
@@ -118,7 +106,6 @@ namespace RSGL{
     
     window root;
     
-    int clear(RSGL::rect r = {0,0,0,0},RSGL::drawable win=root); //clears everything and redraws things defined below it
 
     int CircleCollidePoint(RSGL::circle c, RSGL::point p);
     int CircleCollideRect(RSGL::circle c, RSGL::rect r);
@@ -131,11 +118,18 @@ namespace RSGL{
     int ImageCollidePoint(RSGL::image img, RSGL::point p);
     int ImageCollideImage(RSGL::image img, RSGL::image img2);
   
+    struct Text{
+      RSGL::rect rect; 
+      RSGL::color c;
+      std::string text;
+      std::string f;
+      Text(std::string txt, RSGL::rect r, const char* font, RSGL::color col, bool draw=true, RSGL::drawable d=RSGL::root);
+      Text(){}
+      void draw();
+    };
 
-    text loadText(std::string word, RSGL::rect r, std::string font, RSGL::color c,RSGL::drawable win=root);
+    void drawText(std::string text, RSGL::rect r, const char* font, RSGL::color c, RSGL::drawable d=RSGL::root);
 
-    int drawText(RSGL::text,RSGL::drawable win=root);
-    
     bool isPressed(unsigned long key);
     int drawPoint(RSGL::point p, color c,RSGL::drawable win=root);
 
@@ -152,39 +146,8 @@ namespace RSGL{
 
     std::vector<std::vector<RSGL::color>> resizeImage(std::vector<std::vector<RSGL::color>> image, RSGL::rect newSize, RSGL::rect ogsize);
 
-    struct rectButton{
-      rect r;
-      color c;
-      text t;
-      RSGL::drawable d;
-      void draw(RSGL::drawable win=root){drawRect(r,c); if (t.pixmap) drawText(t); d=win;}
-      bool isClicked(){return d.event.type == MouseButtonReleased && RectCollidePoint(r,{d.event.x,d.event.y});}
-      bool isHovered(){return RectCollidePoint(r,{d.event.x,d.event.y});}
-      bool isPressed(){return d.event.type == MouseButtonPressed && RectCollidePoint(r,{d.event.x,d.event.y});}
-    };
 
-    struct circleButton{
-      circle c;
-      color col;
-      text t;
-      RSGL::drawable d;
-      void draw(RSGL::drawable win=root){drawCircle(c,col); if (t.pixmap) drawText(t); d=win;}
-      bool isClicked(){return d.event.type == MouseButtonReleased && CircleCollidePoint(c,{d.event.x,d.event.y});}
-      bool isHovered(){return CircleCollidePoint(c,{d.event.x,d.event.y});}
-      bool isPressed(){return d.event.type == MouseButtonPressed && CircleCollidePoint(c,{d.event.x,d.event.y});}
-    };
-
-    struct imgButton{
-      RSGL::image img;
-      text t;
-      RSGL::drawable d;
-      //void draw(RSGL::drawable win=root){drawImage(img); if (t.pixmap) drawText(t); d=win;}
-      bool isClicked(){return d.event.type == MouseButtonReleased && ImageCollidePoint(img,{d.event.x,d.event.y});}
-      bool isHovered(){return ImageCollidePoint(img,{d.event.x,d.event.y});}
-      bool isPressed(){return d.event.type == MouseButtonPressed && ImageCollidePoint(img,{d.event.x,d.event.y});}
-    };
-
-     std::vector<std::string> fileDialog(std::string title,bool multiple=false,bool save=false, bool directory=false);
+    std::vector<std::string> fileDialog(std::string title,bool multiple=false,bool save=false, bool directory=false);
     void notifiy(std::string title, std::string content,std::string image="");
     void messageBox(std::string message, bool question=false,bool error=false);
 #ifndef RSGLNAMESPACEEXTENTION
@@ -210,7 +173,25 @@ void* RSGL::drawLine(RSGL::point p1, RSGL::point p2, RSGL::color c, int width){
     
     for (int x=0; x < (p2.x-p1.x); x++){
         RSGL::drawRect({p1.x+x,p1.y+(x*slope),1,width},c);
-    }
-    return NULL;
+    } return NULL;
 }
  
+static std::vector<std::string> imagethreadFilenames;
+static std::vector<RSGL::rect> imageThreadRects;
+static std::vector<bool> imageThreadResize;
+static std::vector<RSGL::drawable> imageThreadDrawables;
+static bool inImageFunction=false;
+
+void* RSGL::drawImageThread(void*){
+  while (inImageFunction){}
+  inImageFunction=true;
+  if (imageThreadDrawables.size() > 0 && imageThreadRects.size() > 0 && imagethreadFilenames.size() > 0 && imageThreadResize.size() > 0){
+    RSGL::drawImageNoThread(imagethreadFilenames.at(0),imageThreadRects.at(0),imageThreadResize.at(0),imageThreadDrawables.at(0));
+    imageThreadDrawables.erase(imageThreadDrawables.begin()); 
+    imageThreadRects.erase(imageThreadRects.begin()); 
+    imagethreadFilenames.erase(imagethreadFilenames.begin());
+    imageThreadResize.erase(imageThreadResize.begin());
+  }
+  inImageFunction=false;
+  return NULL;
+}
