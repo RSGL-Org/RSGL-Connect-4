@@ -5,14 +5,16 @@
     #define name BOTTOM_SCREEN
     #include <vector>
     #include <map>
+    #define WIDTH 400
+    #define LENGTH 240
 
 #endif
 #ifdef __linux__
     #define esc 0xff1b
     std::string name = "Connect 4";
+    #define WIDTH 500
+    #define LENGTH 500
 #endif
-#define WIDTH 500
-#define LENGTH 500
 #define rows 6
 #define collums 7
 #define maxPoints 4
