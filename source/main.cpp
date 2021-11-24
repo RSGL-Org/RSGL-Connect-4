@@ -1,10 +1,11 @@
 #include "../include/RSGL/RSGL.hpp"
-#include <vector>
-#include <map>
 
 #ifdef __3DS__
     #define esc KEY_START
     #define name BOTTOM_SCREEN
+    #include <vector>
+    #include <map>
+
 #endif
 #ifdef __linux__
     #define esc 0xff1b
@@ -70,7 +71,6 @@ void checkGravityAndWins(){
 
 void Home();
 
-
 int main(int argc, char** argv){
     
     if (argc > 1 && (std::string)argv[1] == "-AI") ai=true;
@@ -78,8 +78,8 @@ int main(int argc, char** argv){
     //consoleInit(GFX_BOTTOM, NULL);
     while (running){
         if (!home){
-            checkEvents(); win.clear();
             for (int i=0; i < circles.size(); i++) RSGL::drawCircle(circles.at(i),cirColors.at(i));
+            checkEvents(); win.clear();
             if (!won) checkGravityAndWins();
         } else Home();
     } win.close();
