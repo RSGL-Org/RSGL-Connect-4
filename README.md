@@ -11,6 +11,8 @@
     ./Connect4
 
 # Bulding 3ds (3ds support by SaCode)
+    3DS SUPPORT IS CURRENTLY UNSTABLE
+
     Install devkitpro / 3ds-dev (more info on https://devkitpro.org/wiki/Main_Page)
     
     git clone https://github.com/RSGL-Org/RSGL-Connect-4.git
