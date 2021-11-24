@@ -1,19 +1,26 @@
 #include "../include/RSGL/RSGL.hpp"
 
 #ifdef __3DS__
-    #define esc KEY_START
+    #define esc RK_Start
     #define name BOTTOM_SCREEN
-    #include <vector>
     #include <map>
-    #define WIDTH 400
-    #define LENGTH 240
-
+    #define WIDTH SCREEN_WIDTH
+    #define LENGTH SCREEN_LENGTH
+    #define X 0
+    #define Y 0
+    #define MouseButtonPressed RSGL::TouchscreenPressed
+    #define MouseButtonReleased RSGL::TouchscreenReleased
+    #define Expose true
 #endif
 #ifdef __linux__
     #define esc 0xff1b
     std::string name = "Connect 4";
     #define WIDTH 500
     #define LENGTH 500
+    #define X 500
+    #define Y 500
+    #define MouseButtonPressed RSGL::MouseButtonPressed
+    #define MouseButtonReleased RSGL::MouseButtonReleased
 #endif
 #define rows 6
 #define collums 7
@@ -25,15 +32,15 @@ std::vector<RSGL::circle> circles = {};
 std::vector<RSGL::color> cirColors = {};
 int player = 0, pressed=-1; std::string winner;
 
-RSGL::window win(name,{500,500,WIDTH,LENGTH},{0,0,215});
+RSGL::window win(name,{X,Y,WIDTH,LENGTH},{0,0,215});
 
 void checkEvents(){
     win.checkEvents();
     if (win.isPressed(esc)){win.clear(); home=true; nh=true;}
     switch(win.event.type){
         case RSGL::quit: running = false; break;
-        case RSGL::MouseButtonPressed:  for (int c=0; c < circles.size(); c++) if (RSGL::CircleCollidePoint(circles.at(c),{win.event.x,win.event.y})){  pressed=c; break;} break;
-        case RSGL::MouseButtonReleased: if (!won){
+        case MouseButtonPressed:  for (int c=0; c < circles.size(); c++) if (RSGL::CircleCollidePoint(circles.at(c),{win.event.x,win.event.y})){  pressed=c; break;} break;
+        case MouseButtonReleased: if (!won){
             for (int c=0; c < circles.size(); c++){
                 if (pressed==c && cirColors.at(c).r+cirColors.at(c).g+cirColors.at(c).b == 255*3){
                     if (!player){ cirColors.at(c) = {255,0,0}; player=1; if(ai) player=3;}  
@@ -97,19 +104,23 @@ struct Button{
         return false;
     } 
     void buttonLoop(){
-        if (RSGL::RectCollidePoint(r,{win.event.x,win.event.y}) && win.event.type == RSGL::MouseButtonPressed) pressed=true;
+        if (RSGL::RectCollidePoint(r,{win.event.x,win.event.y}) && win.event.type == MouseButtonPressed) pressed=true;
         else if (!RSGL::RectCollidePoint(r,{win.event.x,win.event.y}) && pressed) pressed=false;
     }
 };
 
 void Home(){
     win.checkEvents(); int click=0;
-    std::vector<Button> buttons = {{"AI",{15,(int)(LENGTH/1.3),(int)(LENGTH/11),(int)(WIDTH/9)},{255,255,255},{0,0,0},25},
-        {"Normal",{100,(int)(LENGTH/1.3),(int)(LENGTH/11),(int)(WIDTH/3)},{255,255,255},{0,0,0},25}, 
-        {"Online",{300,(int)(LENGTH/1.3),(int)(LENGTH/11),(int)(WIDTH/3)},{255,255,255},{0,0,0},25}};
+    Button a,b,c;
+    a.text="AI"; a.r={15,(int)(LENGTH/1.3),(int)(LENGTH/11),(int)(WIDTH/9)}; a.tc={255,255,255}; a.c={0,0,0};a.size=25; 
+    b.text="Normal"; b.r={100,(int)(LENGTH/1.3),(int)(LENGTH/11),(int)(WIDTH/3)}; b.tc={255,255,255}; b.c={0,0,0};b.size=25; 
+    c.text="Online"; c.r={300,(int)(LENGTH/1.3),(int)(LENGTH/11),(int)(WIDTH/3)}; c.tc={255,255,255}; c.c={0,0,0};c.size=25; 
+    
+    std::vector<Button> buttons = {a,b,c};
+        
     RSGL::drawText("Connect 4",{WIDTH/4,LENGTH/2+LENGTH/8,25,25},"res/fonts/SansPosterBold.ttf",{255,255,255});
     for (int i=0; i < buttons.size(); i++){
-        if (win.event.type == 12 || nh) buttons.at(i).draw();
+        if (win.event.type == Expose || nh) buttons.at(i).draw();
         buttons.at(i).buttonLoop();
         if (buttons.at(i).isClicked()) click=i+1;
     } switch(click){

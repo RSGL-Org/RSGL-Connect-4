@@ -106,7 +106,9 @@ main.o: \
  /opt/devkitpro/libctru/include/c2d/sprite.h \
  /opt/devkitpro/libctru/include/c2d/text.h \
  /opt/devkitpro/libctru/include/c2d/font.h \
+ /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/linux/deps/stb_truetype.h \
  /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/3ds/rsgl.hpp \
+ /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/3ds/collision.hpp \
  /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/3ds/keys.hpp \
  /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/theory.hpp
 /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/RSGL.hpp:
@@ -215,6 +217,8 @@ main.o: \
 /opt/devkitpro/libctru/include/c2d/sprite.h:
 /opt/devkitpro/libctru/include/c2d/text.h:
 /opt/devkitpro/libctru/include/c2d/font.h:
+/home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/linux/deps/stb_truetype.h:
 /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/3ds/rsgl.hpp:
+/home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/3ds/collision.hpp:
 /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/RSGL/include/include/3ds/keys.hpp:
 /home/manjaro/Documents/coding/c++/RSGL-Connect-4/3ds/../source/../include/theory.hpp:
