@@ -22,3 +22,7 @@
     make
 
     The 3ds binaries are in ./3ds 
+
+# Authors
+    [Colleague Riley](https://github.com/ColleagueRiley)
+    [SaCode](https://github.com/SaCode)
