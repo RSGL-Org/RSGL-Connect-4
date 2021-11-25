@@ -86,14 +86,13 @@ int main(int argc, char** argv){
     for (int y=0; y < rows; y++){ for (int x=0; x < collums; x++){ circles.insert(circles.end(),{((WIDTH+LENGTH)/15)*x+(WIDTH+LENGTH)/18,((WIDTH+LENGTH)/15)*y+(WIDTH+LENGTH)/18,(WIDTH+LENGTH)/25}); cirColors.insert(cirColors.end(),{255,255,255});}}
     //consoleInit(GFX_BOTTOM, NULL);
     while (running){
-        //if (!home){
-            checkEvents(); win.clear();
+        if (!home){
+            
             for (int i=0; i < circles.size(); i++) RSGL::drawCircle(circles.at(i),cirColors.at(i));
+            checkEvents(); win.clear();
             if (!won) checkGravityAndWins();
-            else RSGL::drawText(winner + " won", {50,LENGTH-50,25,25},"res/fonts/SansPosterBold.ttf",{255,255,255});
-            
-            
-        //} else Home();
+            else RSGL::drawText(winner + " won", {50,LENGTH-50,25,25},"res/fonts/SansPosterBold.ttf",{255,255,255});    
+        } else Home();
     } win.close();
 }
 

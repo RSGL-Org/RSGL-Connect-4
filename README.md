@@ -20,7 +20,7 @@
     cd RSGL-Connect-4
 
     make
-
+?
     The 3ds binaries are in ./3ds 
 
 # Authors
