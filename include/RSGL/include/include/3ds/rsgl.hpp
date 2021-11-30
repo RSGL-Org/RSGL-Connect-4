@@ -1,7 +1,6 @@
 #pragma once
-#include <string.h>
 #include <iostream>
-#include <ctime>   
+#include <ctime>
 #include <vector>
 
 struct Time {
@@ -16,13 +15,10 @@ typedef struct
 } Sprite;
 
 namespace RSGL{
-    int Quit();
-    int nextFrame();
-    int enableRomfs();
     int clearConsole();
-    std::string getLanguage();
-    std::string getSystem();
-    std::string getRegion();
+    int getLanguage();
+    int getSystem();
+
 
     const int KeyPressed=2;
     const int KeyReleased=3;
@@ -32,21 +28,22 @@ namespace RSGL{
     const int quit = 33;
     const int dnd = 34;
 
-    struct rect{int x,y; int length, width;};
+    struct rect{int x,y; int width, length;};
     struct circle { int x, y; int radius; };
     struct triangle { int x, y; int length, width; };
     struct image {int number; RSGL::rect r; Sprite* sprite;};
     struct color { int r, g, b; };
     struct point { int x, y;};
-    struct Text{
-      RSGL::rect rect; 
-      RSGL::color c;
-      std::string text;
-      std::string f;
-      Text(std::string txt, RSGL::rect r, const char* font, RSGL::color col, bool draw=true);
-      Text(){}
-      void draw();
-    };
+    struct text{
+        std::string text;
+        RSGL::rect r;
+        std::string font;
+        RSGL::color col;
+        int pos;
+        float width;
+        float length;
+        void draw();
+    }; 
 
     int CircleCollidePoint(RSGL::circle c, RSGL::point p);
     int CircleCollideRect(RSGL::circle c, RSGL::rect r);
@@ -60,10 +57,11 @@ namespace RSGL{
     int ImageCollideImage(RSGL::image img, RSGL::image img2);*/
 
     u32 background_color;
-    bool romfs = false;
-    C3D_RenderTarget* topScreen = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-    C3D_RenderTarget* bottomScreen = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_RIGHT);
-    C3D_RenderTarget* screen;
+    C3D_RenderTarget* screen[2] = {C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT), C2D_CreateScreenTarget(GFX_BOTTOM, GFX_RIGHT)};
+
+    C2D_TextBuf g_staticBuf;
+    C2D_Text g_staticText[16];
+    C2D_Font font[16]; int fnt_size=0;
 
     int drawRect(rect r, color col, bool solid=true) {
         u32 clr = C2D_Color32(col.r, col.g, col.b, 0xFF);
@@ -78,29 +76,6 @@ namespace RSGL{
         return 1;
     }
 
-    void drawText(std::string text, RSGL::rect r, const char* font, RSGL::color col){
-    stbtt_fontinfo Font; bool cre=false; //char ttf_buffer;
-    //for (int i=0; i < ttf_fontnames.size(); i++) if (ttf_fontnames.at(i) == font){cre=true; ttf_buffer=ttf_buffers.at(i); break;}
-    //if (cre){ ttf_buffers.insert(ttf_buffers.end(), 0); ttf_buffer = ttf_buffers.at(ttf_buffers.size()-1);}
-    char ttf_buffer[1<<25];
-
-    std::vector<std::string> ttf_fontnames;
-    std::vector <char> ttf_buffers; 
-    fread(ttf_buffer, 1, 1<<25, fopen(font, "rb"));
-
-    for (int l=0; l < text.size(); l++){
-        unsigned char *bitmap;
-        int w,h,i,j,c = text.at(l), s = r.width, b=0, jb=0;
-        stbtt_InitFont(&Font, (const unsigned char*)ttf_buffer, stbtt_GetFontOffsetForIndex((const unsigned char*)ttf_buffer,0));
-        bitmap = stbtt_GetCodepointBitmap(&Font, 0,stbtt_ScaleForPixelHeight(&Font, s), c, &w, &h, 0,0);
-        if (text.at(l)=='a' || text.at(l)=='c' || text.at(l)=='e' || text.at(l)=='m' || text.at(l)=='n' 
-          || text.at(l)=='o' || text.at(l)=='r' || text.at(l)=='s' || text.at(l)=='u' || text.at(l)=='v' || text.at(l)=='w') b=4;
-        if (text.at(l)=='j') jb=-4;
-        for (j=0; j < h; ++j) 
-            for (i=0; i < w; ++i) if ( " .:ioVM@"[bitmap[j*w+i]>>5] != ' ') RSGL::drawPoint({i+r.x+(l*s)+jb,j+(r.y+b)},col);
-    }      
-}
-
     struct window {
         C3D_RenderTarget* screen;
     
@@ -108,33 +83,45 @@ namespace RSGL{
         int y;
         int w;
         int h;
+        int screen_num;
         RSGL::color clr;
         struct Event {
             int x, y;           //touch X and Y
             int cpad_x, cpad_y; //C-pad X and Y
             int type;
         };
+        int CheckType() {
+            if (hidKeysHeld() & KEY_TOUCH) return RSGL::TouchscreenPressed;
+            if (hidKeysUp() & KEY_TOUCH) return RSGL::TouchscreenReleased;
+            if (hidKeysHeld()) return RSGL::KeyPressed;
+            if (hidKeysUp()) return RSGL::KeyReleased;
+            return 0;
+        }
         Event event; 
         window(C3D_RenderTarget* screen, RSGL::rect r, RSGL::color c) {
             gfxInitDefault();
+            romfsInit();
             cfguInit();
             C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
         	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	        C2D_Prepare();
-            RSGL::background_color = C2D_Color32(c.r, c.g, c.b, 0xFF); window::clr = c; RSGL::screen = screen;  window::screen = screen; window::x = r.x; window::y = r.y; window::w = r.width; window::h = r.length;
+            //chdir("romfs:/");
+            RSGL::background_color = C2D_Color32(c.r, c.g, c.b, 0xFF); window::clr = c;  window::screen = screen; window::x = r.x; window::y = r.y; window::w = r.width; window::h = r.length;
         };
         void close() {
+            C2D_TextBufDelete(g_staticBuf);
+            for (int i=0; i<=fnt_size; i++) C2D_FontFree(font[i]);
 			C3D_Fini();
  			gfxExit();
  			cfguExit();
-    		if (romfs) romfsExit();
+    		romfsExit();
             window::event.type=RSGL::quit;
         }
         void checkEvents();
 
-        bool isPressed(u32 key) { if (hidKeysHeld() & key && key==KEY_TOUCH) window::event.type = RSGL::TouchscreenPressed; return hidKeysHeld() & key; }
+        bool isPressed(u32 key) { return hidKeysHeld() & key; }
         bool isClicked(u32 key) { return hidKeysDown() & key; }
-        bool isReleased(u32 key) { if (hidKeysUp() & key && key==KEY_TOUCH) window::event.type = RSGL::TouchscreenReleased; return hidKeysUp() & key; }
+        bool isReleased(u32 key) { return hidKeysUp() & key; }
 
         void clear() {
             /*if (RSGL::topScreen == RSGL::screen && ((window::w < 399) && (window::h < 239))) {
@@ -166,10 +153,12 @@ namespace RSGL{
         window::event.cpad_y = cpad.dy;
         window::event.x = touch.px;
         window::event.y = touch.py;
-        window::event.type = 
+        window::event.type = window::CheckType();
+        if (window::screen == RSGL::screen[0]) window::screen_num=0; 
+        else {window::screen_num=1;}
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        C2D_TargetClear(RSGL::screen, RSGL::background_color);
-        C2D_SceneBegin(RSGL::screen);
+        C2D_TargetClear(RSGL::screen[screen_num], RSGL::background_color);
+        C2D_SceneBegin(RSGL::screen[screen_num]);
     }
 
 
@@ -200,8 +189,8 @@ namespace RSGL{
     }
 
     int enableConsole(C3D_RenderTarget* screen) {
-        if (screen == RSGL::bottomScreen) {consoleInit(GFX_BOTTOM, NULL);}
-        if (screen == RSGL::topScreen) {consoleInit(GFX_TOP, NULL);}
+        if (screen == RSGL::screen[1]) {consoleInit(GFX_BOTTOM, NULL);}
+        if (screen == RSGL::screen[0]) {consoleInit(GFX_TOP, NULL);}
         else {return 0;} 
         //The programmer has a nap!
         //Hold out! Programmer!
@@ -221,6 +210,23 @@ namespace RSGL{
     int drawImage(image img) {
         C2D_DrawSprite(&img.sprite[0].spr);
         return 0;
+    }
+    text loadText(std::string text, rect r, std::string fnt, color col) {
+        g_staticBuf = C2D_TextBufNew(4096);
+        int num =  fnt_size; std::string romf = "romfs:/";
+        font[num] = C2D_FontLoad(romf.append(fnt).c_str()); 
+        C2D_TextFontParse(&g_staticText[num], font[num], g_staticBuf, text.c_str());
+        C2D_TextOptimize(&g_staticText[num]);
+        float h = 1.0f;
+        C2D_TextGetDimensions(&g_staticText[num], 1.0f, 1.0f, 0, &h);
+
+        fnt_size++;
+        return {text, r, romf.append(fnt), col, num, g_staticText[num].width, h};
+    }
+
+    int drawText(text txt){
+        C2D_DrawText(&g_staticText[txt.pos], C2D_WithColor, txt.r.x, txt.r.y, 0.0f, (float)txt.r.width/txt.width, (float)txt.r.length/txt.length, C2D_Color32(txt.col.r, txt.col.g, txt.col.b, 0xFF));
+        return 1; 
     }
     Time GetTime() {
         time_t t1 = time(NULL);
@@ -250,134 +256,19 @@ namespace RSGL{
     }
 };
 
-
-std::string RSGL::getLanguage() {
+int RSGL::getLanguage() {
     u8 language = 0;
     CFGU_GetSystemLanguage(&language); //doesn't even matter bruv
-    switch ((int)language) {
-        case 0:
-        return "Japanese";
-        break;
-
-        case 1:
-        return "English";
-        break;
-
-        case 2:
-        return "French";
-        break;
-
-        case 3:
-        return "German";
-        break;
-
-        case 4:
-        return "Italian";
-        break;
-
-        case 5:
-        return "Spanish";
-        break;
-
-        case 6:
-        return "Simplified Chinese";
-        break;
-
-        case 7:
-        return "Korean";
-        break;
-
-        case 8:
-        return "Dutch";
-        break;
-
-        case 9:
-        return "Portuguese";
-        break;
-
-        case 10:
-        return "Russian";
-        break;
-
-        case 11:
-        return "Traditional Chinese";
-        break;
-    }
-    return "N/A";
+    return (int)language;
+    //0 - Japanese, 1 - english, 2 - french, 3 - german, 4 - italian, 5 - spanish, 6 - simplified chinese, 7 - korean, 8 - dutch, 9 - portuguese, 10 - russian, 11 - traditional chinese
 }
-
-std::string RSGL::getSystem() {
+int RSGL::getSystem() {
     u8 s = 0;
     CFGU_GetSystemModel(&s); //doesn't even matter bruv
-    switch ((int)s) {
-        case 0:
-        return "3ds";
-        break;
-
-        case 1:
-        return "3ds_XL";
-        break;
-
-        case 2:
-        return "New_3ds";
-        break;
-
-        case 3:
-        return "2ds";
-        break;
-
-        case 4:
-        return "New_3ds_XL";
-        break;
-
-        case 5:
-        return "New_2ds_XL";
-        break;
-    }
-    return "N/A";
+    return (int)s;
+    //0 - 3DS, 1 - 3DS XL, 2 - New 3DS, 3 - 2DS, 4 - New 3DS XL, 5- New 2DS XL
 }
 
-std::string RSGL::getRegion() {
-    u8 s = 0;
-    CFGU_GetSystemModel(&s); //doesn't even matter bruv
-    switch ((int)s) {
-        case 0:
-        return "JPN";
-        break;
-
-        case 1:
-        return "USA";
-        break;
-
-        case 2:
-        return "EUR";
-        break;
-
-        case 3:
-        return "AUS";
-        break;
-
-        case 4:
-        return "CHN";
-        break;
-
-        case 5:
-        return "KOR";
-        break;
-
-        case 6:
-        return "TWN";
-        break;
-    }
-    return "N/A";
-}
-
-int RSGL::enableRomfs() {
-    romfsInit();
-    romfs=true;
-    return 1;
-}
-    
 int RSGL::clearConsole() {
     consoleClear();
     return 1;

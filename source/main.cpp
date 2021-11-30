@@ -10,7 +10,7 @@
     #define Y 0
     #define MouseButtonPressed RSGL::TouchscreenPressed
     #define MouseButtonReleased RSGL::TouchscreenReleased
-    #define Expose true
+    #define Expose 0
 #endif
 #ifdef __linux__
     #define esc 0xff1b
@@ -52,7 +52,6 @@ void checkEvents(){
      }
 }
 
-
 void checkGravityAndWins(){
     for (int c=0; c < circles.size(); c++){        
         if (cirColors.at(c).r+cirColors.at(c).b+cirColors.at(c).g != 255*3 && c+collums < circles.size() && cirColors.at(c+collums).r+cirColors.at(c+collums).b+cirColors.at(c+collums).g == 255*3){
@@ -78,34 +77,21 @@ void checkGravityAndWins(){
     }
 }
 
-void Home();
-
-int main(int argc, char** argv){
-    
-    if (argc > 1 && (std::string)argv[1] == "-AI") ai=true;
-    for (int y=0; y < rows; y++){ for (int x=0; x < collums; x++){ circles.insert(circles.end(),{((WIDTH+LENGTH)/15)*x+(WIDTH+LENGTH)/18,((WIDTH+LENGTH)/15)*y+(WIDTH+LENGTH)/18,(WIDTH+LENGTH)/25}); cirColors.insert(cirColors.end(),{255,255,255});}}
-    //consoleInit(GFX_BOTTOM, NULL);
-    while (running){
-        if (!home){
-            
-            for (int i=0; i < circles.size(); i++) RSGL::drawCircle(circles.at(i),cirColors.at(i));
-            checkEvents(); win.clear();
-            if (!won) checkGravityAndWins();
-            else RSGL::drawText(winner + " won", {50,LENGTH-50,25,25},"res/fonts/SansPosterBold.ttf",{255,255,255});    
-        } else Home();
-    } win.close();
-}
-
 struct Button{
     std::string text; RSGL::rect r; RSGL::color tc,c; int size;
+    #ifdef __linux__
     void draw(){ RSGL::drawRect(r,c); RSGL::drawText(text,{r.x+(r.width/8),r.y+(r.length/5),size,size},"res/fonts/SansPosterBold.ttf",tc); }
+    #endif
+    #ifdef __3DS__
+    void draw(){ RSGL::drawRect(r,c); }
+    #endif
     bool pressed=false;
     bool isClicked(){
-        if(RSGL::RectCollidePoint(r,{win.event.x,win.event.y}) && pressed) return true;
+        if(RSGL::RectCollidePoint(r,{win.event.x,win.event.y}) && pressed) {std::cout << "clicked!"; return true;}
         return false;
     } 
     void buttonLoop(){
-        if (RSGL::RectCollidePoint(r,{win.event.x,win.event.y}) && win.event.type == MouseButtonPressed) pressed=true;
+        if (RSGL::RectCollidePoint(r,{win.event.x,win.event.y})) pressed=true;
         else if (!RSGL::RectCollidePoint(r,{win.event.x,win.event.y}) && pressed) pressed=false;
     }
 };
@@ -132,4 +118,46 @@ void Home(){
     } nh=false;  
     if (win.event.type == RSGL::quit || win.isPressed(esc)) running=false;
     RSGL::drawCircle({WIDTH/4,LENGTH/8,(WIDTH+LENGTH)/4},{255,251,0}); 
+}
+
+int main(int argc, char** argv){
+    if (argc > 1 && (std::string)argv[1] == "-AI") ai=true;
+    for (int y=0; y < rows; y++){ for (int x=0; x < collums; x++){ circles.insert(circles.end(),{((WIDTH+LENGTH)/15)*x+(WIDTH+LENGTH)/18,((WIDTH+LENGTH)/15)*y+(WIDTH+LENGTH)/18,(WIDTH+LENGTH)/25}); cirColors.insert(cirColors.end(),{255,255,255});}}
+    #ifdef __3DS__
+    for (int y=0; y < rows; y++){ for (int x=0; x < collums; x++){ circles.insert(circles.end(),{((WIDTH+LENGTH)/15)*x+(WIDTH+LENGTH)/18,((WIDTH+LENGTH)/15)*y+(WIDTH+LENGTH)/18,(WIDTH+LENGTH)/25}); cirColors.insert(cirColors.end(),{255,255,255});}}
+    RSGL::text e = RSGL::loadText("Connect 4",{WIDTH/7,LENGTH/1.8, 211, 30},"SansPosterBold.bcfnt",{255,255,255});
+    std::vector<RSGL::text> t = {
+        RSGL::loadText("AI",    {43+9,   (int)(LENGTH/1.3)-1,(int)86/4,(int)(LENGTH/11)-1},"SansPosterBold.bcfnt",{255,255,255}),
+        RSGL::loadText("Normal",{116+1,(int)(LENGTH/1.3)-1,   86-2,(int)(LENGTH/11)-1},"SansPosterBold.bcfnt",{255,255,255}),
+        RSGL::loadText("Online",{217+1,(int)(LENGTH/1.3)-1,   86-2,(int)(LENGTH/11)-1},"SansPosterBold.bcfnt",{255,255,255})
+    };
+    #endif
+    while (running){
+        if (!home){
+            checkEvents();
+            for (int i=0; i < circles.size(); i++) RSGL::drawCircle(circles.at(i),cirColors.at(i));
+            if (!won) checkGravityAndWins();
+            else {
+                #ifdef __linux__
+                RSGL::drawText(winner + " won", {50,LENGTH-50,25,25},"res/fonts/SansPosterBold.ttf",{255,255,255});
+                #endif
+                #ifdef __3DS__ 
+                RSGL::drawText(RSGL::loadText(winner + " won", {55, LENGTH/2.5,211,50},"SansPosterBold.bcfnt",{0,0,0})); 
+                #endif   
+            }
+        } else {
+            #ifdef __3DS__ 
+            win.checkEvents();
+            RSGL::drawText(e);
+            for (int i=0; i<t.size(); i++) RSGL::drawText(t[i]);
+            #endif
+            #ifndef __3DS__
+            Home();
+            #endif
+        }
+        #ifndef __3DS__
+        if (!home)
+        #endif
+            win.clear();
+    } win.close();
 }

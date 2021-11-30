@@ -39,7 +39,7 @@
 #define SCREEN_LENGTH          240
 #define BOTTOM_SCREEN_WIDTH    320
 #define BOTTOM_SCREEN_LENGTH   240
-#define TOP_SCREEN             RSGL::topScreen
-#define UPPER_SCREEN           RSGL::topScreen
-#define BOTTOM_SCREEN          RSGL::bottomScreen
-#define DOWN_SCREEN            RSGL::bottomScreen
+#define TOP_SCREEN             RSGL::screen[0]
+#define UPPER_SCREEN           RSGL::screen[0]
+#define BOTTOM_SCREEN          RSGL::screen[1]
+#define DOWN_SCREEN            RSGL::screen[1]
