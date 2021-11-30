@@ -5,12 +5,12 @@ OUTPUT = Connect4
 
 all:
 	$(GXX) $(SOURCE) $(LIBS) -o $(OUTPUT)
-	@chmod +x ./3ds/3ds.sh
-	@./3ds/3ds.sh
+	chmod +x ./3ds/3ds.sh
+	./3ds/3ds.sh
 
 3DS:
-	@chmod +x ./3ds/3ds.sh
-	@./3ds/3ds.sh
+	chmod +x ./3ds/3ds.sh
+	./3ds/3ds.sh
 
 linux:
 	$(GXX) $(SOURCE) $(LIBS) -o $(OUTPUT)
